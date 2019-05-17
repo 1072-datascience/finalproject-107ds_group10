@@ -68,15 +68,26 @@ for (c in Var_Num){
   dev.off()
 }
 
-ggplot(dTrAll,aes(x = HEIGHT)) + 
+# HEIGHT NA fix
+# Density before
+pdf('img/data/NAfix/HEIGHT-Before.pdf')
+print(ggplot(dTrAll,aes(x = HEIGHT)) + 
   geom_histogram(aes(y=..density..), colour="black", fill="white")+
-  geom_density(alpha=.2, fill="#FF6666") 
+  geom_density(alpha=.2, fill="#FF6666") +
+    labs(x = 'HEIGHT-Before'))
+dev.off()
 
-Hfix <- dTrAll$HEIGHT
-Hfix[is.na(Hfix)] <- mean(Hfix,na.rm = T)
-Hfix[Hfix > 3] <-  3
-Hfix[Hfix < -3] <-  -3
+Heightfix <- dTrAll$HEIGHT
+# replace NA with mean
+Heightfix[is.na(Heightfix)] <- mean(Heightfix,na.rm = T)
+# truncate on -3 and 3
+Heightfix[Heightfix > 3] <-  3
+Heightfix[Heightfix < -3] <-  -3
 
-ggplot(data.frame(Hfix),aes(x = Hfix)) + 
+# Density After
+pdf('img/data/NAfix/HEIGHT-After.pdf')
+print(ggplot(data.frame(Heightfix),aes(x = Heightfix)) + 
   geom_histogram(aes(y=..density..), colour="black", fill="white")+
-  geom_density(alpha=.2, fill="#FF6666") 
+  geom_density(alpha=.2, fill="#FF6666") +
+  labs(x = 'HEIGHT-After'))
+dev.off()
