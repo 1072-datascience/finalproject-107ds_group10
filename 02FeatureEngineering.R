@@ -17,68 +17,66 @@ for (y in Y){
 
 
 #TODO: for loop to CV
-
+library(data.table)
 i <- 1
 #Use 10th fold to test, 1~9th folds to train/val
 Test.Indexes <- which((dTrAll$folds) == nfolds , arr.ind=TRUE)
 Val.Indexes <-  which(dTrAll$folds== (i %% (nfolds-1)) ,arr.ind=TRUE)
 
-dTrain <- 
+dTrain <- dTrAll[-c(Test.Indexes,Val.Indexes),]
+dVal <- dTrAll[Val.Indexes,]
 
 #NA Dealing
-dTrAllFix <- dTrAll
+dTrainFix <- copy(dTrain)
 
-# HEIGHT/WEIGHT NA fix
-# Density before
-# # pdf('img/data/NAfix/HEIGHT-Before.pdf')
-# print(ggplot(dTrAll,aes(x = HEIGHT)) +
-#   geom_histogram(aes(y=..density..), colour="black", fill="white")+
-#   geom_density(alpha=.2, fill="#FF6666",adjust = 2) +
-#     labs(x = 'HEIGHT-Before'))
-# dev.off()
-summary(dTrAll$HEIGHT)
-Heightfix <- dTrAll$HEIGHT
-# replace NA with mean
-Heightfix[is.na(Heightfix)] <- mean(Heightfix,na.rm = T)
-# truncate on -3 and 3
-Heightfix[Heightfix > 5] <-  5
-Heightfix[Heightfix < -5] <-  -5
+Mean_HEIGHT <- mean(dTrain$HEIGHT,na.rm = T)
+Mean_WEIGHT <- mean(dTrain$WEIGHT,na.rm = T)
 
-dTrAllFix$HEIGHT <- Heightfix
-# Density After
+# Replace NA into mean(train) and truncate at +- Range
+
+Threshold <- 5
+
+tmp <- dTrain$HEIGHT
+tmp[is.na(tmp)] <- Mean_HEIGHT
+tmp[tmp > Threshold] <- Threshold
+tmp[tmp < -Threshold] <- -Threshold
+dTrainFix$HEIGHT <- tmp
+
+
+tmp <- dTrain$WEIGHT
+tmp[is.na(tmp)] <- Mean_WEIGHT
+tmp[tmp > Threshold] <- Threshold
+tmp[tmp < -Threshold] <- -Threshold
+dTrainFix$WEIGHT <- tmp
+
+library(gridExtra)
+plotH_B <- ggplot(dTrain[!is.na(dTrain$HEIGHT),],aes(x = HEIGHT)) +
+  geom_histogram(aes(y=..density..), colour="black", fill="white") +
+  geom_density(alpha=.2, fill="#FF6666",adjust = 2) + labs(x = 'HEIGHT-Before')
+plotH_A <- ggplot(dTrainFix,aes(x = HEIGHT)) +
+  geom_histogram(aes(y=..density..), colour="black", fill="white") +
+  geom_density(alpha=.2, fill="#FF6666",adjust = 2) + labs(x = 'HEIGHT-After')
+grid.arrange(plotH_B, plotH_A, nrow=2, ncol=1)
+
+plotW_B <- ggplot(dTrain[!is.na(dTrain$WEIGHT),],aes(x = WEIGHT)) +
+  geom_histogram(aes(y=..density..), colour="black", fill="white") +
+  geom_density(alpha=.2, fill="#FF6666",adjust = 2) + labs(x = 'WEIGHT-Before')
+plotW_A <- ggplot(dTrainFix,aes(x = WEIGHT)) +
+  geom_histogram(aes(y=..density..), colour="black", fill="white") +
+  geom_density(alpha=.2, fill="#FF6666",adjust = 2) + labs(x = 'WEIGHT-After')
+grid.arrange(plotW_B, plotW_A, nrow=2, ncol=1)
+
 # pdf('img/data/NAfix/HEIGHT-After.pdf')
-# print(ggplot(data.frame(Heightfix),aes(x = Heightfix)) +
-#   geom_histogram(aes(y=..density..), colour="black", fill="white")+
-#   geom_density(alpha=.2, fill="#FF6666",adjust = 2) +
-#   labs(x = 'HEIGHT-After'))
 # dev.off()
 
-# print(ggplot(dTrAll,aes(x = WEIGHT)) +
-#   geom_histogram(aes(y=..density..), colour="black", fill="white")+
-#   geom_density(alpha=.2, fill="#FF6666",adjust = 2) +
-#     labs(x = 'WEIGHT-Before'))
-
-Weightfix <- dTrAll$WEIGHT
-# replace NA with mean
-Weightfix[is.na(Weightfix)] <- mean(Weightfix,na.rm = T)
-# truncate on -3 and 3
-Weightfix[Weightfix > 5] <-  5
-Weightfix[Weightfix < -5] <-  -5
-
-dTrAllFix$WEIGHT <- Weightfix
-# print(ggplot(data.frame(Weightfix),aes(x = Weightfix)) +
-#   geom_histogram(aes(y=..density..), colour="black", fill="white")+
-#   geom_density(alpha=.2, fill="#FF6666",adjust = 2) +
-#   labs(x = 'WEIGHT-After'))
-
-#Replace NA with 'NA'
-Var_Cat_NA <-  colnames(dTrAllFix)[(sapply(dTrAllFix,function(x) sum(is.na(x))) > 0)]
+#Replace NA with 'NA' in catagorical columns
+Var_Cat_NA <-  colnames(dTrainFix)[(sapply(dTrainFix,function(x) sum(is.na(x))) > 0)]
 for (c in Var_Cat_NA){
-  dTrAllFix[,c] <- `levels<-`(addNA(dTrAllFix[,c]), c(levels(dTrAllFix[,c]), 'NA'))
+  dTrainFix[,c] <- `levels<-`(addNA(dTrainFix[,c]), c(levels(dTrainFix[,c]), 'NA'))
   #tmp2 <- factor(ifelse(is.na(tmp), 'NA', paste(tmp)), levels = c(levels(tmp), 'NA'))
 }
 #Dummy Var
 
 library('dataPreparation')
-OHEmodel <- build_encoding(dTrAllFix, cols = Var_Cat, verbose = TRUE)
-dTrAllFixOHE <- one_hot_encoder(dTrAllFix, encoding = OHEmodel, drop = TRUE)
+OHEmodel <- build_encoding(dTrainFix, cols = Var_Cat, verbose = TRUE)
+dTrainFix_OHE <- one_hot_encoder(dTrainFix, encoding = OHEmodel, drop = TRUE)
