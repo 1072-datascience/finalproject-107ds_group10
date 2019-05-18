@@ -43,12 +43,20 @@ Vars <- colnames(dTrAll[,-c(1,2)])
 Var_Cat <- Vars[sapply(dTrAll[,Vars],class) %in% c('factor','character')]
 Var_Num <- Vars[sapply(dTrAll[,Vars],class) %in% c('numeric','integer')]
 
+# count for different y
+print(ggplot(dTrAll, aes(x=BUY_TYPE,fill = factor(BUY_TYPE)))
+      + geom_bar(stat='count', position='dodge')
+      + labs(x = 'BUY_TYPE')
+      + theme_few())
+
+#for multi-line comment
+if (FALSE){
 for (c in Var_Cat){
   print(c)
   pdf(paste('img/data/Cat/',c,'.pdf',sep = "" ) )
-  print(ggplot(dTrAll, aes_string(x=c,fill = 'factor(BUY_TYPE)')) 
-        + geom_bar(stat='count', position='dodge') 
-        + labs(x = c) 
+  print(ggplot(dTrAll, aes_string(x=c,fill = 'factor(BUY_TYPE)'))
+        + geom_bar(stat='count', position='dodge')
+        + labs(x = c)
         + theme_few())
   dev.off()
 }
@@ -60,6 +68,7 @@ for (c in Var_Num){
         + labs(x = c) 
         + theme_few())
   dev.off()
+  
   pdf(paste('img/data/Num/Den-',c,'.pdf',sep = "" ) )
   print(ggplot(dTrAll, aes_string(x=c))+
     geom_density(aes(colour=factor(BUY_TYPE), fill=factor(BUY_TYPE)))+
@@ -67,15 +76,16 @@ for (c in Var_Num){
     theme_few())
   dev.off()
 }
+}
 
 # HEIGHT NA fix
 # Density before
-pdf('img/data/NAfix/HEIGHT-Before.pdf')
-print(ggplot(dTrAll,aes(x = HEIGHT)) + 
-  geom_histogram(aes(y=..density..), colour="black", fill="white")+
-  geom_density(alpha=.2, fill="#FF6666") +
-    labs(x = 'HEIGHT-Before'))
-dev.off()
+# pdf('img/data/NAfix/HEIGHT-Before.pdf')
+# print(ggplot(dTrAll,aes(x = HEIGHT)) + 
+#   geom_histogram(aes(y=..density..), colour="black", fill="white")+
+#   geom_density(alpha=.2, fill="#FF6666") +
+#     labs(x = 'HEIGHT-Before'))
+# dev.off()
 
 Heightfix <- dTrAll$HEIGHT
 # replace NA with mean
@@ -85,9 +95,9 @@ Heightfix[Heightfix > 3] <-  3
 Heightfix[Heightfix < -3] <-  -3
 
 # Density After
-pdf('img/data/NAfix/HEIGHT-After.pdf')
-print(ggplot(data.frame(Heightfix),aes(x = Heightfix)) + 
-  geom_histogram(aes(y=..density..), colour="black", fill="white")+
-  geom_density(alpha=.2, fill="#FF6666") +
-  labs(x = 'HEIGHT-After'))
-dev.off()
+# pdf('img/data/NAfix/HEIGHT-After.pdf')
+# print(ggplot(data.frame(Heightfix),aes(x = Heightfix)) + 
+#   geom_histogram(aes(y=..density..), colour="black", fill="white")+
+#   geom_density(alpha=.2, fill="#FF6666") +
+#   labs(x = 'HEIGHT-After'))
+# dev.off()
