@@ -1,6 +1,7 @@
 rm(list=ls());cat('\f')
 
-library(ggplot2);library(ggthemes)
+
+library('ggplot2');library('ggthemes')
 # Loading Train Data
 dTrBuy <- read.table('data/train_buy_info.csv',header = TRUE, sep = ',')
 dTrCust <- read.table('data/train_cust_info.csv',header = TRUE, sep = ',')
@@ -23,6 +24,8 @@ dTrCust$CUST_ID <- NULL
 dTrTpy$CUST_ID <- NULL
 # Merge By CUST_ID
 dTrAll <- cbind(dTrBuy,dTrCust,dTrTpy)
+
+dTrAll$BUY_YEAR <- NULL
 
 # Transfer BUY_MONTH into factor
 dTrAll$BUY_MONTH <- factor(dTrAll$BUY_MONTH)
@@ -78,26 +81,3 @@ for (c in Var_Num){
 }
 }
 
-# HEIGHT NA fix
-# Density before
-# pdf('img/data/NAfix/HEIGHT-Before.pdf')
-# print(ggplot(dTrAll,aes(x = HEIGHT)) + 
-#   geom_histogram(aes(y=..density..), colour="black", fill="white")+
-#   geom_density(alpha=.2, fill="#FF6666") +
-#     labs(x = 'HEIGHT-Before'))
-# dev.off()
-
-Heightfix <- dTrAll$HEIGHT
-# replace NA with mean
-Heightfix[is.na(Heightfix)] <- mean(Heightfix,na.rm = T)
-# truncate on -3 and 3
-Heightfix[Heightfix > 3] <-  3
-Heightfix[Heightfix < -3] <-  -3
-
-# Density After
-# pdf('img/data/NAfix/HEIGHT-After.pdf')
-# print(ggplot(data.frame(Heightfix),aes(x = Heightfix)) + 
-#   geom_histogram(aes(y=..density..), colour="black", fill="white")+
-#   geom_density(alpha=.2, fill="#FF6666") +
-#   labs(x = 'HEIGHT-After'))
-# dev.off()
