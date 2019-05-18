@@ -81,3 +81,4 @@ for (c in Var_Num){
 }
 }
 
+save.image("01.RData")
