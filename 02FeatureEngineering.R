@@ -1,3 +1,29 @@
+rm(list=ls()) ; load('01.RData') ; cat('\f')
+
+library('ggplot2');library('ggthemes')
+#Map Y into number
+dTrAll$BUY <- as.vector(sapply(as.character(dTrAll$BUY_TYPE),utf8ToInt)) -97
+
+#Train Test Val Split
+#Shuffle data
+dTrAll <- dTrAll[sample(nrow(dTrAll)),]
+
+Y <- unique(dTrAll$BUY)
+dTrAll$folds <- 0
+nfolds <- 10
+for (y in Y){
+  dTrAll$folds[dTrAll$BUY  == y] <-  cut(seq(1,sum(dTrAll$BUY == y)),breaks=nfolds,labels=FALSE)
+}
+
+
+#TODO: for loop to CV
+
+i <- 1
+#Use 10th fold to test, 1~9th folds to train/val
+Test.Indexes <- which((dTrAll$folds) == nfolds , arr.ind=TRUE)
+Val.Indexes <-  which(dTrAll$folds== (i %% (nfolds-1)) ,arr.ind=TRUE)
+
+dTrain <- 
 
 #NA Dealing
 dTrAllFix <- dTrAll
