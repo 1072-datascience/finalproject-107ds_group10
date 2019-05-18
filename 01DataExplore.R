@@ -20,6 +20,8 @@ dTrBuy <- SortCol(dTrBuy,'CUST_ID')
 dTrCust <- SortCol(dTrCust,'CUST_ID')
 dTrTpy <- SortCol(dTrTpy,'CUST_ID')
 
+rm(SortCol)
+
 dTrCust$CUST_ID <- NULL
 dTrTpy$CUST_ID <- NULL
 # Merge By CUST_ID
@@ -45,7 +47,7 @@ sapply(dTrAll,function(x) length(unique(x)))
 Vars <- colnames(dTrAll[,-c(1,2)])
 Var_Cat <- Vars[sapply(dTrAll[,Vars],class) %in% c('factor','character')]
 Var_Num <- Vars[sapply(dTrAll[,Vars],class) %in% c('numeric','integer')]
-
+rm(Vars)
 # count for different y
 print(ggplot(dTrAll, aes(x=BUY_TYPE,fill = factor(BUY_TYPE)))
       + geom_bar(stat='count', position='dodge')
@@ -80,5 +82,5 @@ for (c in Var_Num){
   dev.off()
 }
 }
-
+rm(dTrTpy,dTrBuy,dTrCust)
 save.image("01.RData")
