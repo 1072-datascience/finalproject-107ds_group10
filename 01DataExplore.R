@@ -98,6 +98,7 @@ for (c in Var_Num){
     facet_wrap(~factor(BUY_TYPE))+
     theme_few()
     + ggtitle(paste('Density-',c)))
+  print(ggplot(dTrAll))
 }
 dev.off()
 }
