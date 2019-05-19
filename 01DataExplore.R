@@ -8,6 +8,7 @@ detachAllPackages <- function() {
 detachAllPackages()
 rm(list=ls());cat('\f')
 
+PlotOrNot <- FALSE
 # Load packages
 library('ggplot2');library('ggthemes')
 
@@ -64,7 +65,7 @@ print(ggplot(dTrAll, aes(x=BUY_TYPE,fill = factor(BUY_TYPE)))
 dev.off()
 
 #for multi-line comment
-if (T){
+if (PlotOrNot){
 
 #figure for categorical features
 pdf('img/data/OHE-Before/Catagorical.pdf' )
