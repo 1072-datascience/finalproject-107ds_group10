@@ -42,7 +42,7 @@ summary(dTrAll)
 
 # NA-ratio
 NA_Ratio <- data.frame(rbind(round(sapply(dTrAll,function(x) sum(is.na(x)))/nrow(dTrAll),digits = 2),sapply(dTrAll,function(x) sum(is.na(x)))))
-rownames(NA_Ratio) <- c('Amount','Proportion')
+rownames(NA_Ratio) <- c('Proportion','Amount')
 NA_Ratio <- NA_Ratio[,NA_Ratio[2,]>0]
 print(t(NA_Ratio))
 
