@@ -1,25 +1,30 @@
+# unload all package for clean env
+detachAllPackages <- function() {
+  basic.packages <- c("package:stats","package:graphics","package:grDevices","package:utils","package:datasets","package:methods","package:base")
+  package.list <- search()[ifelse(unlist(gregexpr("package:",search()))==1,TRUE,FALSE)]
+  package.list <- setdiff(package.list,basic.packages)
+  if (length(package.list)>0)  for (package in package.list) detach(package, character.only=TRUE)
+}
+detachAllPackages()
 rm(list=ls());cat('\f')
 
-
+# Load packages
 library('ggplot2');library('ggthemes')
+
 # Loading Train Data
 dTrBuy <- read.table('data/train_buy_info.csv',header = TRUE, sep = ',')
 dTrCust <- read.table('data/train_cust_info.csv',header = TRUE, sep = ',')
 dTrTpy <- read.table('data/train_Tpy_info.csv',header = TRUE, sep = ',')
-
-# head(dTrBuy)
-# head(dTrCust)
-# head(dTrTpy)
 
 # sort by column
 SortCol <- function(DataFrame,ColName){
   return (DataFrame[order(DataFrame[ColName]),])
 }
 
+# Sort By ID in order to combine data from different files
 dTrBuy <- SortCol(dTrBuy,'CUST_ID')
 dTrCust <- SortCol(dTrCust,'CUST_ID')
 dTrTpy <- SortCol(dTrTpy,'CUST_ID')
-
 rm(SortCol)
 
 dTrCust$CUST_ID <- NULL
@@ -27,6 +32,7 @@ dTrTpy$CUST_ID <- NULL
 # Merge By CUST_ID
 dTrAll <- cbind(dTrBuy,dTrCust,dTrTpy)
 
+# remove constant column
 dTrAll$BUY_YEAR <- NULL
 
 # Transfer BUY_MONTH into factor
@@ -40,23 +46,27 @@ rownames(NA_Ratio) <- c('Amount','Proportion')
 NA_Ratio <- NA_Ratio[,NA_Ratio[2,]>0]
 print(t(NA_Ratio))
 
+# Amount of Unique for each columns
 sapply(dTrAll,function(x) length(unique(x)))
 
-
-# plot  result distribution for every feature
+# plot distribution for every feature
 Vars <- colnames(dTrAll[,-c(1,2)])
 Var_Cat <- Vars[sapply(dTrAll[,Vars],class) %in% c('factor','character')]
 Var_Num <- Vars[sapply(dTrAll[,Vars],class) %in% c('numeric','integer')]
 rm(Vars)
-# count for different y
-pdf('img/data/OHE-Before/BUYTYPE-summary.pdf')
+
+# count for different targets
+pdf('img/data/OHE-Before/Target.pdf')
 print(ggplot(dTrAll, aes(x=BUY_TYPE,fill = factor(BUY_TYPE)))
       + geom_bar(stat='count', position='dodge')
       + labs(x = 'BUY_TYPE')
       + theme_few())
 dev.off()
+
 #for multi-line comment
 if (T){
+
+#figure for categorical features
 pdf('img/data/OHE-Before/Catagorical.pdf' )
 for (c in Var_Cat){
   print(paste('Plotting:',c))
@@ -67,6 +77,8 @@ for (c in Var_Cat){
 
 }
 dev.off()
+
+#figure for numerical features
 pdf('img/data/OHE-Before/Numeric.pdf')
 for (c in Var_Num){
   print(paste('Plotting:',c))
@@ -104,4 +116,6 @@ dev.off()
 }
 
 rm(dTrTpy,dTrBuy,dTrCust)
+
+#save image for convenience
 save.image("01.RData")
