@@ -68,7 +68,7 @@ dev.off()
 if (PlotOrNot){
 
 #figure for categorical features
-pdf('img/data/OHE-Before/Catagorical.pdf' )
+pdf('img/data/OHE-Before/Categorical.pdf' )
 for (c in Var_Cat){
   print(paste('Plotting:',c))
   print(ggplot(dTrAll, aes_string(x=c,fill = 'factor(BUY_TYPE)'))

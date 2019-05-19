@@ -119,7 +119,7 @@ print(ggplot(dTrainFix, aes(x=BUDGET_QUAN ,fill = factor(BUY_TYPE))) +
 dev.off()
 }
 
-#Replace NA with 'NA' in catagorical columns
+#Replace NA with 'NA' in categorical columns
 Var_Cat_NA <-  colnames(dTrainFix)[(sapply(dTrainFix,function(x) sum(is.na(x))) > 0)]
 for (c in Var_Cat_NA){
   dTrainFix[,c] <- `levels<-`(addNA(dTrainFix[,c]), c(levels(dTrainFix[,c]), 'NA'))
@@ -141,14 +141,14 @@ CatLocation <- function(Data,ColNames){
   return(output)
 }
 
-# non-catagorical column name
+# non-categorical column name
 OHENotCat <- c("CUST_ID","BUY_TYPE","HEIGHT","WEIGHT","CHILD_NUM","BUDGET","BUY",'folds')
-# catagorical column after OHE
+# categorical column after OHE
 VarOHE_Cat <- colnames(dTrainFix_OHE)[-CatLocation(dTrainFix_OHE,OHENotCat)]
 
 #plot the stat figure after OHE
 if(PlotOrNot){
-pdf('img/data/OHE-After/Catagorical.pdf')
+pdf('img/data/OHE-After/Categorical.pdf')
 for (c in VarOHE_Cat){
   print(paste('Plotting:',c))
   #pdf(paste('img/data/CatOHE/',c,'.pdf',sep = "" ) )
