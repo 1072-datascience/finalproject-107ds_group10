@@ -51,7 +51,7 @@ dTrainFix$WEIGHT <- tmp
 
 rm(tmp,Threshold)
 
-library(gridExtra)
+library('gridExtra')
 plotH_B <- ggplot(dTrain[!is.na(dTrain$HEIGHT),],aes(x = HEIGHT)) +
   geom_histogram(aes(y=..density..), colour="black", fill="white") +
   geom_density(alpha=.2, fill="#FF6666",adjust = 2) + labs(x = 'HEIGHT-Before')
@@ -82,34 +82,35 @@ ggplot(dTrainFix, aes(x=OCCUPATION ,fill = factor(BUY_TYPE))) +
   geom_bar(stat='count', position='dodge') + labs(x = 'OCCUPATION' ) +
   facet_wrap(~factor(BUY_TYPE)) + theme_few()
 
-save.image('02.RData')
+# save.image('02.RData')
+# 
+# rm(list=ls());load('02.RData');cat('\f')
 
-rm(list=ls());load('02.RData');cat('\f')
 #Budget Quantilization
 library('dataPreparation')
-BUDGETQUANTILEmodel <- build_bins(dTrainFix,col='BUDGET',n_bins = 10,type = 'equal_freq', verbose = TRUE)
-tmp <- fastDiscretization(dTrainFix, bins = BUDGETQUANTILEmodel, verbose = F)
-dTrainFix$BUDGET_QUAN <- tmp$BUDGET
-rm(tmp)
 
-library('tidyverse')
-dTrainFix$BUDGET_QUAN <- fct_rev(dTrainFix$BUDGET_QUAN)
+tmp <- dTrainFix$BUDGET
+cuts <- quantile(tmp,probs = seq(0,1,length.out=11),include.lowest = T , ordered_result = T)
+cuts[1] <- -Inf; cuts[length(cuts)] <- +Inf
+dTrainFix$BUDGET_QUAN <- as.ordered(cut(tmp,cuts))
+BUDGET_QUANTILE <- cuts
+rm(cuts)
 
-plotBF <- ggplot(dTrainFix, aes(x=BUDGET_QUAN ,fill = factor(BUY_TYPE))) +
+print(ggplot(dTrainFix, aes(x=BUDGET_QUAN ,fill = factor(BUY_TYPE))) +
   geom_bar(stat='count', position='dodge') + labs(x = 'BUDGET_QUAN' ) +
   facet_wrap(~factor(BUY_TYPE),scales='fixed') + theme_few() + 
-  theme(axis.text.x = element_text(size=12)) +  ggtitle('Fixed Y') +
-  scale_x_discrete(labels = 1:10) 
+  theme(axis.text.x = element_text(size=5,angle=90)) +  ggtitle('Fixed Y') )
+  #scale_x_discrete(labels = 1:length(levels(dTrainFix$BUDGET_QUAN))) 
 
-plotBR <- ggplot(dTrainFix, aes(x=BUDGET_QUAN ,fill = factor(BUY_TYPE))) +
+print(ggplot(dTrainFix, aes(x=BUDGET_QUAN ,fill = factor(BUY_TYPE))) +
   geom_bar(stat='count', position='dodge') + labs(x = 'BUDGET_QUAN' ) +
-  facet_wrap(~factor(BUY_TYPE),scales='free') + theme_few() + 
-  theme(axis.text.x = element_text(size=12)) +  ggtitle('Relative Y') +
-  scale_x_discrete(labels = 1:10)
+  facet_wrap(~factor(BUY_TYPE),scales='free_y') + theme_few() + 
+  theme(axis.text.x = element_text(size=5,angle=90)) +  ggtitle('Relative Y') )
+  #scale_x_discrete(labels = 1:length(levels(dTrainFix$BUDGET_QUAN)))
 
-grid.arrange(plotBF, plotBR, nrow=2, ncol=1)
+#grid.arrange(plotBF, plotBR, nrow=2, ncol=1)
+#rm(plotBF, plotBR)
 
-rm(plotBF, plotBR)
 
 #Replace NA with 'NA' in catagorical columns
 Var_Cat_NA <-  colnames(dTrainFix)[(sapply(dTrainFix,function(x) sum(is.na(x))) > 0)]
