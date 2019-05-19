@@ -49,11 +49,12 @@ Var_Cat <- Vars[sapply(dTrAll[,Vars],class) %in% c('factor','character')]
 Var_Num <- Vars[sapply(dTrAll[,Vars],class) %in% c('numeric','integer')]
 rm(Vars)
 # count for different y
+pdf('img/data/OHE-Before/BUYTYPE-summary.pdf')
 print(ggplot(dTrAll, aes(x=BUY_TYPE,fill = factor(BUY_TYPE)))
       + geom_bar(stat='count', position='dodge')
       + labs(x = 'BUY_TYPE')
       + theme_few())
-
+dev.off()
 #for multi-line comment
 if (T){
 pdf('img/data/OHE-Before/Catagorical.pdf' )
@@ -69,7 +70,23 @@ dev.off()
 pdf('img/data/OHE-Before/Numeric.pdf')
 for (c in Var_Num){
   print(paste('Plotting:',c))
-  #pdf(paste('img/data/Num/Bar-',c,'.pdf',sep = "" ) )
+  
+  if (c %in% c('HEIGHT','WEIGHT','BUDGET') ){
+  
+  print(ggplot(dTrAll[!is.na(dTrAll$WEIGHT),],aes_string(x = c)) +
+          geom_histogram(aes(y=..density..), colour="black", fill="white") +
+          geom_density(alpha=.2, fill="#FF6666",adjust = 2) + 
+          labs(x = c)+
+          ggtitle(paste('Full -',c)))
+  }else{
+    print(ggplot(dTrAll[!is.na(dTrAll[,c]),], aes_string(x=c)) 
+          + geom_bar(stat='count') 
+          + labs(x = c) 
+          + theme_few()
+          + scale_x_continuous(breaks =  sort(unique(dTrAll[,c])))
+          + ggtitle(paste('Full-',c)))
+  }
+
   print(ggplot(dTrAll[!is.na(dTrAll[,c]),], aes_string(x=c,fill = 'factor(BUY_TYPE)')) 
         + geom_bar(stat='count', position='dodge') 
         + labs(x = c) 
@@ -84,5 +101,6 @@ for (c in Var_Num){
 }
 dev.off()
 }
+
 rm(dTrTpy,dTrBuy,dTrCust)
 save.image("01.RData")
