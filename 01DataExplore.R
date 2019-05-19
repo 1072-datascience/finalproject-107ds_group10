@@ -55,32 +55,34 @@ print(ggplot(dTrAll, aes(x=BUY_TYPE,fill = factor(BUY_TYPE)))
       + theme_few())
 
 #for multi-line comment
-if (FALSE){
+if (T){
+pdf('img/data/OHE-Before/Catagorical.pdf' )
 for (c in Var_Cat){
-  print(c)
-  pdf(paste('img/data/Cat/',c,'.pdf',sep = "" ) )
+  print(paste('Plotting:',c))
   print(ggplot(dTrAll, aes_string(x=c,fill = 'factor(BUY_TYPE)'))
         + geom_bar(stat='count', position='dodge')
         + labs(x = c)
         + theme_few())
-  dev.off()
+
 }
+dev.off()
+pdf('img/data/OHE-Before/Numeric.pdf')
 for (c in Var_Num){
-  print(c)
-  pdf(paste('img/data/Num/Bar-',c,'.pdf',sep = "" ) )
-  print(ggplot(dTrAll, aes_string(x=c,fill = 'factor(BUY_TYPE)')) 
+  print(paste('Plotting:',c))
+  #pdf(paste('img/data/Num/Bar-',c,'.pdf',sep = "" ) )
+  print(ggplot(dTrAll[!is.na(dTrAll[,c]),], aes_string(x=c,fill = 'factor(BUY_TYPE)')) 
         + geom_bar(stat='count', position='dodge') 
         + labs(x = c) 
-        + theme_few())
-  dev.off()
+        + theme_few()
+        + ggtitle(paste('Bar-',c)))
   
-  pdf(paste('img/data/Num/Den-',c,'.pdf',sep = "" ) )
-  print(ggplot(dTrAll, aes_string(x=c))+
+  print(ggplot(dTrAll[!is.na(dTrAll[,c]),], aes_string(x=c))+
     geom_density(aes(colour=factor(BUY_TYPE), fill=factor(BUY_TYPE)))+
     facet_wrap(~factor(BUY_TYPE))+
-    theme_few())
-  dev.off()
+    theme_few()
+    + ggtitle(paste('Density-',c)))
 }
+dev.off()
 }
 rm(dTrTpy,dTrBuy,dTrCust)
 save.image("01.RData")
