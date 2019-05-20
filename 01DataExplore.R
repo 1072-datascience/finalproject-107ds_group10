@@ -77,27 +77,29 @@ print(ggplot(dTrAll, aes(x=BUY_TYPE,fill = factor(BUY_TYPE)))
 dev.off()
 
 #for multi-line comment
-if (PlotOrNot){
-
+if (PlotOrNot) {
 #figure for categorical features
 pdf('img/data/OHE-Before/Categorical.pdf' )
-for (c in Var_Cat){
+print('Plotting Categorical feature')
+for (c in c(Var_Cat,'CHILD_NUM')){
   print(paste('Plotting:',c))
+  print(ggplot(dTrAll, aes_string(x=c)) 
+        + geom_bar(stat='count') 
+        + labs(x = c) 
+        + theme_few()
+        + ggtitle(paste('Full-',c)))
   print(ggplot(dTrAll, aes_string(x=c,fill = 'factor(BUY_TYPE)'))
         + geom_bar(stat='count', position='dodge')
         + labs(x = c)
         + theme_few())
-
 }
 dev.off()
 
 #figure for numerical features
 pdf('img/data/OHE-Before/Numeric.pdf')
-for (c in Var_Num){
+print('Plotting Numerical feature')
+for (c in c('HEIGHT','WEIGHT','BUDGET')){
   print(paste('Plotting:',c))
-  
-  if (c %in% c('HEIGHT','WEIGHT','BUDGET') ){
-  
   print(ggplot(dTrAll[!is.na(dTrAll$WEIGHT),],aes_string(x = c)) +
           geom_histogram(aes(y=..density..), colour="black", fill="white") +
           geom_density(alpha=.2, fill="#FF6666",adjust = 2) + 
@@ -116,49 +118,27 @@ for (c in Var_Num){
           theme_few()
         + ggtitle(paste('Density-',c)))
   print(ggplot(dTrAll))
-  }else{
-    print(ggplot(dTrAll[!is.na(dTrAll[,c]),], aes_string(x=c)) 
-          + geom_bar(stat='count') 
-          + labs(x = c) 
-          + theme_few()
-          + scale_x_continuous(breaks =  sort(unique(dTrAll[,c])))
-          + ggtitle(paste('Full-',c)))
+}
+dev.off()
+
+pdf('img/data/OHE-Before/GroupCat.pdf')
+print('Plotting grouping figure')
+for (c in c(Var_Cat,'CHILD_NUM')){
+  print(paste('Plotting:', c))
+  PlotByGroup(dTrAll,x = c, Group = 'BUY_TYPE',
+              Relative = F, Title = paste(c,'\n-Groupby BUY_TYPE,\n Fixed Y'))
+  PlotByGroup(dTrAll,x = c, Group = 'BUY_TYPE',
+              Relative = T, Title = paste(c,'\n-Groupby BUY_TYPE,\n Relative Y'))
   
-  print(ggplot(dTrAll[!is.na(dTrAll[,c]),], aes_string(x=c,fill = 'factor(BUY_TYPE)')) 
-        + geom_bar(stat='count', position='dodge') 
-        + labs(x = c) 
-        + theme_few()
-        + ggtitle(paste('Bar-',c)))
-  
-  print(ggplot(dTrAll[!is.na(dTrAll[,c]),], aes_string(x=c))+
-          geom_bar(aes(colour=factor(BUY_TYPE), fill=factor(BUY_TYPE)))+
-          facet_wrap(~factor(BUY_TYPE))+
-          theme_few() +
-          scale_x_continuous(breaks =  sort(unique(dTrAll[,c]))) +
-          ggtitle(paste('Density-',c)))
-  
-  }
+  PlotByGroup(dTrAll,x = 'BUY_TYPE', Group = c,
+              Relative = F, Title = paste(c,'\n-Groupby',c,',\n Fixed Y'))  
+  PlotByGroup(dTrAll,x = 'BUY_TYPE', Group = c,
+              Relative = T, Title = paste(c,'\n-Groupby',c,',\n Relative Y'))
 }
 dev.off()
 }
 
-if(PlotOrNot){
-  pdf('img/data/OHE-Before/GroupCat.pdf')
-  for(c in Var_Cat){
-    PlotByGroup(dTrAll,x = c, Group = 'BUY_TYPE',
-                Relative = F, Title = paste(c,'-Groupby BUY_TYPE, Fixed Y'))
-    PlotByGroup(dTrAll,x = c, Group = 'BUY_TYPE',
-                Relative = T, Title = paste(c,'-Groupby BUY_TYPE, Relative Y'))
-    
-    PlotByGroup(dTrAll,x = 'BUY_TYPE', Group = c,
-                Relative = F, Title = paste(c,'-Groupby',c,', Fixed Y'))  
-    PlotByGroup(dTrAll,x = 'BUY_TYPE', Group = c,
-                Relative = T, Title = paste(c,'-Groupby',c,', Relative Y'))
-  }
-  dev.off()
-}
 
 rm(dTrTpy,dTrBuy,dTrCust)
-
 #save image for convenience
 save.image("01.RData")
