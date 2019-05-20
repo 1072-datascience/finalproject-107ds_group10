@@ -42,92 +42,76 @@ dVal <- dTrAll[Val.Indexes,]
 #NA Dealing
 dTrainFix <- copy(dTrain)
 
-# Backup Mean for Training and Predicting data
-Mean_HEIGHT <- mean(dTrain$HEIGHT,na.rm = T)
-Mean_WEIGHT <- mean(dTrain$WEIGHT,na.rm = T)
-
-# Replace NA with mean(train) and truncate at +- Range
-Threshold <- 5
-
-tmp <- dTrain$HEIGHT
-tmp[is.na(tmp)] <- Mean_HEIGHT
-tmp[tmp > Threshold] <- Threshold
-tmp[tmp < -Threshold] <- -Threshold
-dTrainFix$HEIGHT <- tmp
-
-tmp <- dTrain$WEIGHT
-tmp[is.na(tmp)] <- Mean_WEIGHT
-tmp[tmp > Threshold] <- Threshold
-tmp[tmp < -Threshold] <- -Threshold
-dTrainFix$WEIGHT <- tmp
-
-rm(tmp,Threshold)
-
-if(PlotOrNot){
-# Plot HEIGHT/WEIGHT data Before/After fix
-pdf('img/data/OHE-After/NAFix.pdf')
-plotH_B <- ggplot(dTrain[!is.na(dTrain$HEIGHT),],aes(x = HEIGHT)) +
-  geom_histogram(aes(y=..density..), colour="black", fill="white") +
-  geom_density(alpha=.2, fill="#FF6666",adjust = 2) + labs(x = 'HEIGHT-Before')
-plotH_A <- ggplot(dTrainFix,aes(x = HEIGHT)) +
-  geom_histogram(aes(y=..density..), colour="black", fill="white") +
-  geom_density(alpha=.2, fill="#FF6666",adjust = 2) + labs(x = 'HEIGHT-After')
-grid.arrange(plotH_B, plotH_A, nrow=2, ncol=1)
-
-rm(plotH_B,plotH_A)
-
-plotW_B <- ggplot(dTrain[!is.na(dTrain$WEIGHT),],aes(x = WEIGHT)) +
-  geom_histogram(aes(y=..density..), colour="black", fill="white") +
-  geom_density(alpha=.2, fill="#FF6666",adjust = 2) + labs(x = 'WEIGHT-Before')
-plotW_A <- ggplot(dTrainFix,aes(x = WEIGHT)) +
-  geom_histogram(aes(y=..density..), colour="black", fill="white") +
-  geom_density(alpha=.2, fill="#FF6666",adjust = 2) + labs(x = 'WEIGHT-After')
-grid.arrange(plotW_B, plotW_A, nrow=2, ncol=1)
-
-rm(plotW_B,plotW_A)
-dev.off()
-}
-
 # OCCUPATION filter
 # keep only the first letter
 dTrainFix$OCCUPATION <- sapply(as.character(dTrain$OCCUPATION), function(x) strsplit(x, NULL)[[1]][1])
-if(PlotOrNot){
-pdf('img/data/OHE-After/OCCUPATION.pdf')
-ggplot(dTrainFix, aes(x=OCCUPATION ,fill = factor(BUY_TYPE))) +
-  geom_bar(stat='count', position='dodge') + labs(x = 'OCCUPATION' ) +
-  facet_wrap(~factor(BUY_TYPE)) + theme_few()
-dev.off()
-}
+dTrainFix$OCCUPATION[dTrainFix$OCCUPATION == 'N' ] <- 'NA'
+
+#Continuous Numerical column Quantilization
+QUANTILE_num <- 10
+#HEIGHT
+HEIGHT_QUANTILE <- quantile(dTrainFix$HEIGHT,
+                            probs = seq(0,1,length.out = QUANTILE_num + 1),
+                            include.lowest = T, ordered_result = T,na.rm = T)
+HEIGHT_QUANTILE[1] <- -Inf; HEIGHT_QUANTILE[length(HEIGHT_QUANTILE)] <- +Inf
+dTrainFix$HEIGHT_QUAN <- as.ordered(cut(dTrainFix$HEIGHT,HEIGHT_QUANTILE))
+
+#WEIGHT
+WEIGHT_QUANTILE <- quantile(dTrainFix$WEIGHT,
+                            probs = seq(0,1,length.out = QUANTILE_num + 1),
+                            include.lowest = T, ordered_result = T,na.rm = T)
+WEIGHT_QUANTILE[1] <- -Inf; WEIGHT_QUANTILE[length(WEIGHT_QUANTILE)] <- +Inf
+dTrainFix$WEIGHT_QUAN <- as.ordered(cut(dTrainFix$WEIGHT,WEIGHT_QUANTILE))
+
 #Budget Quantilization
-BUDGET_QUANTILE <- quantile(dTrainFix$BUDGET,probs = seq(0,1,length.out=11),include.lowest = T , ordered_result = T)
+BUDGET_QUANTILE <- quantile(dTrainFix$BUDGET,
+                            probs = seq(0,1,length.out = QUANTILE_num + 1)
+                            ,include.lowest = T , ordered_result = T)
 BUDGET_QUANTILE[1] <- -Inf; BUDGET_QUANTILE[length(BUDGET_QUANTILE)] <- +Inf
 dTrainFix$BUDGET_QUAN <- as.ordered(cut(dTrainFix$BUDGET,BUDGET_QUANTILE))
 
+#Plot Edited Var
+VarToPlot <- c('BUDGET_QUAN','HEIGHT_QUAN','WEIGHT_QUAN','OCCUPATION')
 if(PlotOrNot){
-pdf('img/data/OHE-After/BUDGET.pdf')
-print(ggplot(dTrainFix, aes(x=BUDGET_QUAN ,fill = factor(BUY_TYPE))) +
-  geom_bar(stat='count', position='dodge') + labs(x = 'BUDGET_QUAN' ) +
-  facet_wrap(~factor(BUY_TYPE),scales='fixed') + theme_few() +
-  theme(axis.text.x = element_text(size=5,angle=90)) +  ggtitle('Fixed Y') )
-  #scale_x_discrete(labels = 1:length(levels(dTrainFix$BUDGET_QUAN)))
-
-print(ggplot(dTrainFix, aes(x=BUDGET_QUAN ,fill = factor(BUY_TYPE))) +
-  geom_bar(stat='count', position='dodge') + labs(x = 'BUDGET_QUAN' ) +
-  facet_wrap(~factor(BUY_TYPE),scales='free_y') + theme_few() +
-  theme(axis.text.x = element_text(size=5,angle=90)) +  ggtitle('Relative Y') )
-  #scale_x_discrete(labels = 1:length(levels(dTrainFix$BUDGET_QUAN)))
+pdf('img/data/OHE-After/HEIGHTnWEIGHT.pdf')
+print(ggplot(dTrainFix, aes(x=HEIGHT_QUAN ,y=WEIGHT_QUAN,col=factor(BUY_TYPE))) + 
+        geom_count() +
+        facet_wrap(~factor(BUY_TYPE)) + theme_few() +
+        theme(axis.text.x = element_text(size=5,angle=90)))
+dev.off()
+pdf('img/data/OHE-After/OCCUPATION.pdf')
+print(ggplot(dTrainFix, aes(x=OCCUPATION)) 
+      + geom_bar(stat='count') 
+      + labs(x = 'OCCUPATION') 
+      + theme_few()
+      + ggtitle('Full- OCCUPATION'))
+dev.off()
+pdf('img/data/OHE-After/NewVar.pdf')
+for(c in VarToPlot){
+  print(paste('Plotting',c))
+  PlotByGroup(dTrainFix, x = c, Group = 'BUY_TYPE',
+              Relative = F, Title = paste(c,'\n-Groupby BUY_TYPE,\n Fixed Y'))
+  PlotByGroup(dTrainFix, x = c, Group = 'BUY_TYPE',
+              Relative = T, Title = paste(c,'\n-Groupby BUY_TYPE,\n Relative Y'))
+  
+  PlotByGroup(dTrainFix, x = 'BUY_TYPE', Group = c,
+              Relative = F, Title = paste(c,'\n-Groupby ',c,',\n Fixed Y', sep ='') ) 
+  PlotByGroup(dTrainFix, x = 'BUY_TYPE', Group = c,
+              Relative = T, Title = paste(c,'\n-Groupby ',c,',\n Relative Y',sep=''))
+}
 dev.off()
 }
 
 #Replace NA with 'NA' in categorical columns
 Var_Cat_NA <-  colnames(dTrainFix)[(sapply(dTrainFix,function(x) sum(is.na(x))) > 0)]
+Var_Cat_NA <- Var_Cat_NA[-which(Var_Cat_NA == 'HEIGHT' | Var_Cat_NA == 'WEIGHT')]
 for (c in Var_Cat_NA){
   dTrainFix[,c] <- `levels<-`(addNA(dTrainFix[,c]), c(levels(dTrainFix[,c]), 'NA'))
   #tmp2 <- factor(ifelse(is.na(tmp), 'NA', paste(tmp)), levels = c(levels(tmp), 'NA'))
 }
 
 #Dummy Var
-Var_Cat <- c(Var_Cat,'BUDGET_QUAN')
+Var_Cat <- c(Var_Cat,'BUDGET_QUAN','HEIGHT_QUAN','WEIGHT_QUAN')
 OHEmodel <- build_encoding(dTrainFix, cols = Var_Cat, verbose = TRUE)
 dTrainFix_OHE <- one_hot_encoder(dTrainFix, encoding = OHEmodel, drop = TRUE)
 
@@ -152,15 +136,15 @@ pdf('img/data/OHE-After/Categorical.pdf')
 for (c in VarOHE_Cat){
   print(paste('Plotting:',c))
   #pdf(paste('img/data/CatOHE/',c,'.pdf',sep = "" ) )
-  if (c != 'BUDGET_QUAN'){
+  if (!(c %in% c('BUDGET_QUAN','HEIGHT_QUAN','WEIGHT_QUAN'))){
     print(ggplot(dTrainFix_OHE, aes_string(x=c,fill = 'factor(BUY_TYPE)')) 
           + geom_bar(stat='count',position = 'dodge') 
           + labs(x = c) 
           + theme_few()
           + scale_x_continuous(breaks =  sort(unique(dTrainFix_OHE[[as.integer(CatLocation(dTrainFix_OHE,c))]]))))
   }else{
-    print(ggplot(dTrainFix_OHE, aes(x=BUDGET_QUAN ,fill = factor(BUY_TYPE))) +
-            geom_bar(stat='count', position='dodge') + labs(x = 'BUDGET_QUAN' ) +
+    print(ggplot(dTrainFix_OHE, aes_string(x= c,fill = 'factor(BUY_TYPE)')) +
+            geom_bar(stat='count', position='dodge') + labs(x = c ) +
             theme_few() +
             theme(axis.text.x = element_text(size=5,angle=90)))
   }
