@@ -37,7 +37,7 @@ NumToBuy <- function(DataCol){
 
 BuildQuantile <- function(DataCol,QuantileNum = 10){
   Quantile <- quantile(DataCol,probs = seq(0,1,length.out = QuantileNum + 1),
-    include.lowest = T, ordered_result = T,na.rm = T)
+                       include.lowest = T, ordered_result = T,na.rm = T)
   Quantile[1] <- -Inf
   Quantile[length(Quantile)] <- +Inf
   return(Quantile)
@@ -55,11 +55,20 @@ MultiBuildQuantile <- function(Data,ToBuild,QuantileNum = 10){
   return (output)
 }
 
-ApplyQuantile <- function(Data,Model,QuantileNum = 10){
+ApplyQuantile <- function(Data,Model,Remove = F, ordered = F){
   for(c in attr(Model,'names') ){
     ColName <- paste(c,'_QUAN',sep = '')
-    as.ordered(cut(dTrAll$HEIGHT,M$HEIGHT))
-    Data[,ColName] <- as.ordered(cut(Data[,c],Model[[c]]))
+    if (ordered){
+      Data[,ColName] <- as.ordered(factor(cut(Data[,c],Model[[c]])))
+    }else{
+      Data[,ColName] <- factor(cut(Data[,c],Model[[c]]))
+    }
+    #Data[,ColName] <- as.ordered(cut(Data[,c],Model[[c]]))
+  }
+  if(Remove){
+    for(c in attr(Model,'names')){
+      Data[,c] <- NULL
+    }
   }
   return (Data)
 }
@@ -79,7 +88,7 @@ BalancedSplitIndicator <- function(Data,LabelCol,nfolds){
 }
 
 ShuffleData <- function(Data){
-  return (Data[sample(nrow(Data))])
+  return (Data[sample(nrow(Data)),])
 }
 
 SplitByIndicator <- function(Data,Indicator,Target,exclude = F){
@@ -122,14 +131,14 @@ ReplaceNA <- function(Data,Exclude = NULL){
 }
 
 #Dummy Var model
-BuildOHEmodel <- function(Data,Target){
+BuildOHEmodel <- function(Data,Target,verb = TRUE){
   library('dataPreparation')
-  return ( build_encoding(Data, cols = Target, verbose = TRUE) )
+  return ( build_encoding(Data, cols = Target, verbose = verb) )
 }
 
-ApplyOHE <- function(Data, Model, Drop = TRUE){
+ApplyOHE <- function(Data, Model, Drop = TRUE,verb = TRUE){
   library('dataPreparation')
-  return (one_hot_encoder(Data, encoding = Model, drop = Drop))
+  return (one_hot_encoder(Data, encoding = Model, drop = Drop, verbose = verb))
 }
 
 # location of given column names
@@ -143,5 +152,5 @@ CatLocation <- function(Data,ColNames){
 }
 
 #remove unused var
-rm(c, PlotOrNot, NA_Ratio,PlotByGroup)
+rm(c, PlotOrNot, NA_Ratio,PlotByGroup, Var_Cat, Var_Num)
 save.image('021.RData')
