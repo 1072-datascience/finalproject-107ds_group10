@@ -9,7 +9,6 @@
 |張智鈞|統計三|105304015|
 |廖渝瑄|統計三|105304002|
 
-
 ### Goal
 A breif introduction about your project, i.e., what is your goal?
 
@@ -52,4 +51,10 @@ Rscript code/your_script.R --input data/training --output results/performance.ts
 ## Reference
 * Code/implementation which you include/reference (__You should indicate in your presentation if you use code for others. Otherwise, cheating will result in 0 score for final project.__)
 * Packages you use
+<<<<<<< HEAD
 * Related publications
+=======
+* Related publications
+
+
+>>>>>>> classroom/master
