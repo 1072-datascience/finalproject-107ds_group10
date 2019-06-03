@@ -1,10 +1,13 @@
-# < Title of your final project >
+# 1072DS Final Project - Group 10
 
 ### Groups
-* < name, student ID1 >
-* < name, student ID2 >
-* < name, student ID3 >
-* ...
+| 姓名 | 系級 | 學號 |
+|:-----:|:------:|:-----:|
+|何冠廷|金碩一|107352011|
+|王韋之|金碩一|107352012|
+|焦祖傑|統計三|105304043|
+|張智鈞|統計三|105304015|
+|廖渝瑄|統計三|105304002|
 
 ### Goal
 A breif introduction about your project, i.e., what is your goal?
