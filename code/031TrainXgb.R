@@ -19,9 +19,9 @@ QuanColName <- paste(QuanTarget,'_QUAN',sep ='')
 
 #True Predict Test Data
 
-dTeBuy <- read.table('data/test_buy_x_info.csv',header = TRUE, sep = ',')
-dTeCust <- read.table('data/test_cust_x_info.csv',header = TRUE, sep = ',')
-dTeTpy <- read.table('data/test_Tpy_x_info.csv',header = TRUE, sep = ',')
+dTeBuy <- read.table('../data/test_buy_x_info.csv',header = TRUE, sep = ',')
+dTeCust <- read.table('../data/test_cust_x_info.csv',header = TRUE, sep = ',')
+dTeTpy <- read.table('../data/test_Tpy_x_info.csv',header = TRUE, sep = ',')
 SortCol <- function(DataFrame,ColName){
   return (DataFrame[order(DataFrame[ColName]),])
 }
@@ -128,7 +128,7 @@ dPred <- DataProcess(dTeAll, IsPred = TRUE, OHEModel = BestOHEModel, QuanModel =
 dpred <- xgb.DMatrix(as.matrix(dPred))
 Pred <- NumToBuy(predict(BestModel,dpred))
   
-Answer <- read.table('data/[Answer] test_buy_y_info.csv',header = TRUE, sep = ',')
+Answer <- read.table('../data/[Answer] test_buy_y_info.csv',header = TRUE, sep = ',')
 Answer <- SortCol(Answer,'CUST_ID')
 
 Acc(Pred,Answer$BUY_TYPE)
@@ -145,5 +145,5 @@ xgb.save(BestModel, 'xgbmodel')
 #save Trained model and related data
 save(list = c('raw','BestModel','BestVal','BestOHEModel','BestQuanModel',
       'DataProcess','BuyToNum','NumToBuy','SortCol','SubString','ReplaceNA',
-      'getmode','ApplyQuantile','ApplyOHE'),file = 'XGBModel.RData')
+      'getmode','ApplyQuantile','ApplyOHE','Acc','Answer','Pred'),file = 'XGBModel.RData')
 
