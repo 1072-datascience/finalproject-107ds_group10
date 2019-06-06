@@ -133,17 +133,17 @@ Answer <- SortCol(Answer,'CUST_ID')
 
 Acc(Pred,Answer$BUY_TYPE)
 Prediction <- data.frame(CUST_ID = dTeAll$CUST_ID, BUY_TYPE = Pred)
-write.csv(Prediction, file = "prediction.csv", row.names = FALSE)
+write.csv(Prediction, file = "../results/XGB_Tree/prediction.csv", row.names = FALSE)
 AccuracyTable <- data.frame(t(data.frame(AccList)),row.names = NULL)
 colnames(AccuracyTable) <- c('Validation','Test','Train')
 AccuracyTable <- data.frame(sapply(AccuracyTable,function(x) round(x, digits = 3)))
-write.csv(AccuracyTable,file = 'Accuracy.csv',row.names = FALSE, quote = FALSE)
+write.csv(AccuracyTable,file = '../results/XGB_Tree/Accuracy.csv',row.names = FALSE, quote = FALSE)
 
 raw <- xgb.save.raw(BestModel)
-xgb.save(BestModel, 'xgbmodel')
+xgb.save(BestModel, '../results/XGB_Tree/xgbmodel')
 
 #save Trained model and related data
 save(list = c('raw','BestModel','BestVal','BestOHEModel','BestQuanModel',
       'DataProcess','BuyToNum','NumToBuy','SortCol','SubString','ReplaceNA',
-      'getmode','ApplyQuantile','ApplyOHE','Acc','Answer','Pred'),file = 'XGBModel.RData')
+      'getmode','ApplyQuantile','ApplyOHE','Acc','Answer','Pred'),file = '../results/XGB_Tree/XGBModel.RData')
 
