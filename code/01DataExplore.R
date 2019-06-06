@@ -13,9 +13,9 @@ PlotOrNot <- FALSE
 library('ggplot2');library('ggthemes')
 
 # Loading Train Data
-dTrBuy <- read.table('data/train_buy_info.csv',header = TRUE, sep = ',')
-dTrCust <- read.table('data/train_cust_info.csv',header = TRUE, sep = ',')
-dTrTpy <- read.table('data/train_Tpy_info.csv',header = TRUE, sep = ',')
+dTrBuy <- read.table('../data/train_buy_info.csv',header = TRUE, sep = ',')
+dTrCust <- read.table('../data/train_cust_info.csv',header = TRUE, sep = ',')
+dTrTpy <- read.table('../data/train_Tpy_info.csv',header = TRUE, sep = ',')
 
 # sort by column
 SortCol <- function(DataFrame,ColName){
