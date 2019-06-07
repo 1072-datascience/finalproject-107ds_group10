@@ -99,10 +99,11 @@ Col_Double <- c('BEHAVIOR.2.NA', 'STATUS2.NA', 'STATUS3.NA', 'STATUS4.NA',
                 'IS.PHONE.NA', 'INTEREST2.NA', 'INTEREST3.NA', 'INTEREST4.NA', 
                 'INTEREST5.NA', 'INTEREST6.NA', 'INTEREST7.NA', 'INTEREST8.NA', 
                 'INTEREST9.NA', 'INTEREST10.NA', 'IS.APP.NA', 'WEIGHT.QUAN.NA')
-BestVal <- 0
-BestModel <- NULL
+# BestVal <- 0
+# BestModel <- NULL
 
-for (i in 1:nfolds){
+# for (i in 1:nfolds){
+  i <- 1
   print(paste(i,'fold:'))
   IndexTest <- i
   IndexVal <- ifelse(i+1 <= nfolds, i+1, i-9)
@@ -141,21 +142,21 @@ for (i in 1:nfolds){
   Val.Acc <- Acc(ValPreds,dVal$BUY_TYPE)
   Test.Acc <- Acc(TestPreds,dTest$BUY_TYPE)
   Train.Acc <- Acc(TrainPreds,dTrain$BUY_TYPE)
-  if(Val.Acc > BestVal){
-    BestModel <- model
-    BestVal <- Val.Acc
-    BestOHEModel <- OHEModel
-    BestQuanModel <- QuanModel
-  }
-  AccList <- list.append(.data = AccList,c(Val.Acc,Test.Acc,Train.Acc))
+  # if(Val.Acc > BestVal){
+  #   BestModel <- model
+  #   BestVal <- Val.Acc
+  #   BestOHEModel <- OHEModel
+  #   BestQuanModel <- QuanModel
+  # }
+  #AccList <- list.append(.data = AccList,c(Val.Acc,Test.Acc,Train.Acc))
   
-}
+#}
 
-dPred <- DataProcess(dTeAll, IsPred = TRUE, OHEModel = BestOHEModel, QuanModel = BestQuanModel)
+dPred <- DataProcess(dTeAll, IsPred = TRUE, OHEModel = OHEModel, QuanModel = QuanModel)
 dPred <- ColRemove(dPred,Col_Double)
 colnames(dPred) <- gsub(" ", "", colnames(dPred))
 
-Pred <- predict(BestModel,dPred)
+Pred <- predict(model,dPred)
 
 
 Answer <- read.table('../data/[Answer] test_buy_y_info.csv',header = TRUE, sep = ',')
@@ -165,15 +166,15 @@ Answer <- SortCol(Answer,'CUST_ID')
 Acc(Pred,Answer$BUY_TYPE)
 Prediction <- data.frame(CUST_ID = dTeAll$CUST_ID, BUY_TYPE = Pred)
 write.csv(Prediction, file = "../results/Bayes/prediction.csv", row.names = FALSE)
-AccuracyTable <- data.frame(t(data.frame(AccList)),row.names = NULL)
-colnames(AccuracyTable) <- c('Validation','Test','Train')
-AccuracyTable <- data.frame(sapply(AccuracyTable,function(x) round(x, digits = 3)))
+#AccuracyTable <- data.frame(t(data.frame(AccList)),row.names = NULL)
+#colnames(AccuracyTable) <- c('Validation','Test','Train')
+AccuracyTable <- data.frame(Train = round(Train.Acc, digits = 3), Val = round(Val.Acc, digits = 3), Test = round(Test.Acc, digits = 3)  ,row.names = NULL)
+#AccuracyTable <- data.frame(sapply(AccuracyTable,function(x) round(x, digits = 3)))
 write.csv(AccuracyTable,file = '../results/Bayes/Accuracy.csv',row.names = FALSE, quote = FALSE)
 
 
 #save Trained model and related data
-save(list = c('raw','BestModel','BestVal','BestOHEModel','BestQuanModel',
-              'DataProcess','BuyToNum','NumToBuy','SortCol','SubString','ReplaceNA',
+save(list = c('DataProcess','BuyToNum','NumToBuy','SortCol','SubString','ReplaceNA',
               'getmode','ApplyQuantile','ApplyOHE','Acc','Answer','Pred','ColRemove',
               'Col_Double'),
      file = '../results/Bayes/BayesModel.RData')
