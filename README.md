@@ -27,13 +27,15 @@
 |nfolds|       5      | k-fold CV fold 數   |
 |train |data/training/| train data 所在位置 |
 |test |  data/test/  | test  data 所在位置 |
+|answer |data/answer.csv| test data 解答所在位置 |
 |output|    results/  | 輸出位置            |
 
-+ 執行需指定 train,test data 所在之路徑，預設分別放置於 data/training, data/test 資料夾下，指定路徑即可。
-+ 輸出包含 null model 之預測、實際模型預測、交叉驗證各次之準確度、訓練完成之模型相關資料、預測後之評估(TPR, FPR ...等)
++ 執行需指定 train,test data, test data 實際結果 所在之路徑，預設分別放置於 data/training, data/test 資料夾下、data/Description/test_buy_y_info.csv，指定路徑即可。
++ 需要指定輸出檔案之目標位置
++ 輸出包含 null model 之預測、實際模型預測、訓練完成之模型相關資料、預測後之評估(TPR, FPR ...等)
 + 執行範例
 ```R
-Rscript code/Cathay.R --nfolds 5 --train data/training/ --test data/test/ --output results/
+Rscript code/Cathay.R --nfolds 5 --train data/train/ --test data/test/ --output results/ --answer data/Description/test_buy_y_info.csv
 ```
 
 [//]: <> (You should provide an example commend to reproduce your result)
@@ -76,7 +78,7 @@ Rscript code/Cathay.R --nfolds 5 --train data/training/ --test data/test/ --outp
 
 ### code
 
-+ 分別採用取 Train 樣本之眾數以及 naive Bayes 作為 null model
++ 分別採用取 Train 樣本之眾數作為 null model
 + 實際預測使用 xgboost 內的 softmax 方法做預測
 + 除了 null model 之外採用 k-fold 交叉驗證
 
@@ -89,7 +91,7 @@ Rscript code/Cathay.R --nfolds 5 --train data/training/ --test data/test/ --outp
 
 ### results
 
-+ 使用所有類別的 Accuracy 以及 RMSE 作為主要衡量標準，並且針對個別類別計算 TPR, FPR, TNR, FNR
++ 使用所有類別的總 Accuracy 作為主要衡量標準，並且針對個別類別計算 TPR, FPR, TNR, FNR
 + 本預測困難的點在於 feature 大多為類別資料，若將特徵轉為虛擬變數，會使得特徵數量增大，增加訓練及預測困難度。
 
 [//]: <> (* Which metric do you use )
@@ -122,6 +124,7 @@ Rscript code/Cathay.R --nfolds 5 --train data/training/ --test data/test/ --outp
   + Training Related
     + data.table
     + dataPreparation
+    + caret
     + rlist
     + xgboost
     + e1071

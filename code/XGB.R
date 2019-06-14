@@ -90,7 +90,6 @@ CM <- confusionMatrix(Prediction$BUY_TYPE,Answer$BUY_TYPE)
 CSVOverall <- round(data.frame(CM$overall),digits = 4)
 CSVByClass <- round(data.frame(CM$byClass),digits = 4)
 
-# You can then use
 write.csv(CSVOverall,file= paste(Args_output,'XGB/Overall.csv', sep = '') )
 write.csv(CSVByClass,file= paste(Args_output,'XGB/ByClass.csv', sep = '') )
 
@@ -107,4 +106,4 @@ ggsave( paste(Args_output,'XGB/Gain.png', sep = ''), device = 'png' , units = "m
 
 rm('CM','CSVByClass','CSVOverall')
 
-library('beepr');beep()
+#library('beepr');beep()
