@@ -7,7 +7,8 @@ detachAllPackages <- function() {
 }
 detachAllPackages()
 # load image from last stage
-rm(list=ls()) ; load('021.RData') ; cat('\f')
+rm(list=ls()) ; load('code/ForTest/021.RData') ; cat('\f')
+set.seed(9527)
 Acc <- function(Pr,Tr){
   return(sum(Pr == Tr)/length(Tr))
 }
@@ -22,9 +23,9 @@ QuanColName <- paste(QuanTarget,'_QUAN',sep ='')
 
 #True Predict Test Data
 {
-  dTeBuy <- read.table('../data/test_buy_x_info.csv',header = TRUE, sep = ',')
-  dTeCust <- read.table('../data/test_cust_x_info.csv',header = TRUE, sep = ',')
-  dTeTpy <- read.table('../data/test_Tpy_x_info.csv',header = TRUE, sep = ',')
+  dTeBuy <- read.table('data/test/test_buy_x_info.csv',header = TRUE, sep = ',')
+  dTeCust <- read.table('data/test/test_cust_x_info.csv',header = TRUE, sep = ',')
+  dTeTpy <- read.table('data/test/test_Tpy_x_info.csv',header = TRUE, sep = ',')
   
   
   dTeBuy <- SortCol(dTeBuy,'CUST_ID')
@@ -159,23 +160,23 @@ colnames(dPred) <- gsub(" ", "", colnames(dPred))
 Pred <- predict(model,dPred)
 
 
-Answer <- read.table('../data/[Answer] test_buy_y_info.csv',header = TRUE, sep = ',')
+Answer <- read.table('data/Description/test_buy_y_info.csv',header = TRUE, sep = ',')
 Answer <- SortCol(Answer,'CUST_ID')
 
 
 Acc(Pred,Answer$BUY_TYPE)
 Prediction <- data.frame(CUST_ID = dTeAll$CUST_ID, BUY_TYPE = Pred)
-write.csv(Prediction, file = "../results/Bayes/prediction.csv", row.names = FALSE)
+#write.csv(Prediction, file = "../results/Bayes/prediction.csv", row.names = FALSE)
 #AccuracyTable <- data.frame(t(data.frame(AccList)),row.names = NULL)
 #colnames(AccuracyTable) <- c('Validation','Test','Train')
-AccuracyTable <- data.frame(Train = round(Train.Acc, digits = 3), Val = round(Val.Acc, digits = 3), Test = round(Test.Acc, digits = 3)  ,row.names = NULL)
+#AccuracyTable <- data.frame(Train = round(Train.Acc, digits = 3), Val = round(Val.Acc, digits = 3), Test = round(Test.Acc, digits = 3)  ,row.names = NULL)
 #AccuracyTable <- data.frame(sapply(AccuracyTable,function(x) round(x, digits = 3)))
-write.csv(AccuracyTable,file = '../results/Bayes/Accuracy.csv',row.names = FALSE, quote = FALSE)
+#write.csv(AccuracyTable,file = '../results/Bayes/Accuracy.csv',row.names = FALSE, quote = FALSE)
 
 
 #save Trained model and related data
-save(list = c('DataProcess','BuyToNum','NumToBuy','SortCol','SubString','ReplaceNA',
-              'getmode','ApplyQuantile','ApplyOHE','Acc','Answer','Pred','ColRemove',
-              'Col_Double'),
-     file = '../results/Bayes/BayesModel.RData')
+# #save(list = c('DataProcess','BuyToNum','NumToBuy','SortCol','SubString','ReplaceNA',
+#               'getmode','ApplyQuantile','ApplyOHE','Acc','Answer','Pred','ColRemove',
+#               'Col_Double'),
+#      file = '../results/Bayes/BayesModel.RData')
 
