@@ -1,0 +1,8 @@
+"","Sensitivity","Specificity","Pos.Pred.Value","Neg.Pred.Value","Precision","Recall","F1","Prevalence","Detection.Rate","Detection.Prevalence","Balanced.Accuracy"
+"Class: a",0,1,NA,0.7215,NA,0,NA,0.2785,0,0,0.5
+"Class: b",0,1,NA,0.9699,NA,0,NA,0.0301,0,0,0.5
+"Class: c",0,1,NA,0.8898,NA,0,NA,0.1102,0,0,0.5
+"Class: d",0,1,NA,0.7216,NA,0,NA,0.2784,0,0,0.5
+"Class: e",1,0,0.2698,NA,0.2698,1,0.4249,0.2698,0.2698,1,0.5
+"Class: f",0,1,NA,0.9707,NA,0,NA,0.0293,0,0,0.5
+"Class: g",0,1,NA,0.9963,NA,0,NA,0.0037,0,0,0.5
